@@ -4,9 +4,9 @@ class Tree(object):
     def __init__(self, root, subtrees=None):
         self.root = root
         if subtrees is None:
-            self.subtrees = []
+            self.subtrees: list[Tree] = []
         else:
-            self.subtrees = subtrees
+            self.subtrees: list[Tree] = subtrees
         
     def __eq__(self, other):
         if not isinstance(other, Tree): return NotImplemented

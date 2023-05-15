@@ -4,20 +4,22 @@ Traditional tree walks:
 - Post-order walk [not implemented yet]
 - In-order walk - for binary trees [not implemented yet]
 """
+from typing import Generator
+from lib.adt.tree import Tree
 
 
 class TreeWalk(object):
     
     class Visitor(object):
-        def visit_node(self, tree_node):
+        def visit_node(self, tree_node: Tree):
             pass
         def done(self):
             return None
     
-    def __init__(self, tree):
+    def __init__(self, tree: Tree):
         self.tree = tree
     
-    def __call__(self, visitor):
+    def __call__(self, visitor: Visitor):
         for x in self:
             visitor.visit_node(x)
         return visitor.done()
@@ -28,7 +30,7 @@ class TreeWalk(object):
 
 class PreorderWalk(TreeWalk):
     
-    def __iter__(self):
+    def __iter__(self) -> Generator[Tree, None, None]:
         stack = [self.tree]
         while stack:
             top = stack[0]

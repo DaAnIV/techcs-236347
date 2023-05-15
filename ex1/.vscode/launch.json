@@ -10,12 +10,12 @@
             "type": "python",
             "request": "launch",
             "stopOnEntry": true,
-            "pythonPath": "${config:python.pythonPath}",
+            "python": "${command:python.interpreterPath}",
             "program": "${file}",
             "cwd": "${workspaceFolder}",
             "env": {"PYTHONPATH": "lib"},
             "envFile": "${workspaceFolder}/.env",
-            "console": "none",
+            "console": "internalConsole",
             "debugOptions": [
                 "RedirectOutput"
             ]
@@ -28,11 +28,11 @@
             "request": "launch",
             "module": "lambda_calc.syntax",
             "stopOnEntry": true,
-            "pythonPath": "${config:python.pythonPath}",
+            "python": "${command:python.interpreterPath}",
             "cwd": "${workspaceFolder}",
             "env": {"PYTHONPATH": "lib:src"},
             "envFile": "${workspaceFolder}/.env",
-            "console": "none",
+            "console": "internalConsole",
             "debugOptions": [
                 "RedirectOutput"
             ]
@@ -44,12 +44,12 @@
             "type": "python",
             "request": "launch",
             "module": "lambda_calc.types",
-            "stopOnEntry": true,
-            "pythonPath": "${config:python.pythonPath}",
+            "stopOnEntry": false,
+            "python": "${command:python.interpreterPath}",
             "cwd": "${workspaceFolder}",
             "env": {"PYTHONPATH": "lib:src"},
             "envFile": "${workspaceFolder}/.env",
-            "console": "none",
+            "console": "internalConsole",
             "debugOptions": [
                 "RedirectOutput"
             ]
@@ -61,7 +61,7 @@
             "type": "python",
             "request": "launch",
             "stopOnEntry": true,
-            "pythonPath": "${config:python.pythonPath}",
+            "python": "${command:python.interpreterPath}",
             "program": "${file}",
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal",
