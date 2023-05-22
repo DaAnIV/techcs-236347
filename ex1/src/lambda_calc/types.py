@@ -65,16 +65,18 @@ if __name__ == '__main__':
     """)
     print_tree(expr)
 
-#     out = LambdaParser()(r"""
-#     \(plus : nat -> nat -> nat) (lt : nat -> nat -> bool). lt ((\(x : nat). plus x x) 3) ((\(x : nat). plus 5 x) 9)
-#    (nat → nat → nat) → (nat → nat → bool) → bool
-#     """)
-#     dot_print(out)
+    out = LambdaParser()(r"""
+    \(plus : nat -> nat -> nat) (lt : nat -> nat -> bool). lt ((\(x : nat). plus x x) 3) ((\(x : nat). plus 5 x) 9)
+   (nat → nat → nat) → (nat → nat → bool) → bool
+    """)
+    print_tree(out)
 
     if expr:
         print(">> Valid expression.")
         # print(pretty(expr))
-        print(type_inference(expr))
-        print_tree(type_inference(expr)[0])
+        results = type_inference(expr)
+        print(results)
+        print_tree(results[0])
+        print_tree(results[1])
     else:
         print(">> Invalid expression.")
