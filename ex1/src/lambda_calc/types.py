@@ -5,73 +5,23 @@ Your task:
 Implement type checking and type inference for simply-typed lambda calculus.
 """
 
-from typing import Any
-from lambda_calc.syntax import LambdaParser, pretty
-from lambda_calc.stdlib import CONSTANTS
-from adt.tree import Tree, Walk, PreorderWalk
-import itertools
+from lambda_calc.constraints import ConstraintsVisitor
+from lambda_calc.syntax import LambdaParser
+from lib.adt.tree import Tree, PreorderWalk
 from pprint import pprint
 
-class ConstraintsVisitor(Walk.Visitor):
-    def __init__(self, ) -> None:
-        self.constraints = None
-        self.type_vars = None
-        self.bounded_vars = None
+def get_constraints(expr: Tree) -> tuple[dict[int, str], dict[str: Tree]]:
+    return ConstraintsVisitor()(expr)
 
-    def type_var(self, node: Tree) -> str:
-        return self.type_vars[id(node)]
+def unify(type_vars, constraints: dict[str: list[Tree]]) -> dict[str: Tree]:
+    results = {}
+    for var in type_vars:
+        results[var] = None
 
-    def __visit_constraints(self, node: Tree):
-        if node.root == 'num':
-            self.constraints[self.type_var(node)] = 'nat'
-        elif node.root == ':':
-            self.constraints[self.type_var(node)] = 'nat'
-        elif node.root == '\\':
-            self.constraints[self.type_var(node)] = f'{self.type_var(node.subtrees[0])} -> {self.type_var(node.subtrees[1])}'
-            self.__visit_constraints(node.subtrees[0])
-            for subtree in node.subtrees[:-1]:
-                self.bounded_vars[subtree.terminals[0]] = self.type_var(subtree)
-            self.__visit_constraints(node.subtrees[-1])
-            for subtree in node.subtrees[:-1]:
-                self.bounded_vars.pop(subtree.terminals[0])
-        elif node.root == '@':
-            self.constraints[self.type_var(node.subtrees[0])] = f'{self.type_var(node.subtrees[1])} -> {self.type_var(node)}'
-            self.__visit_constraints(node.subtrees[0])
-            self.__visit_constraints(node.subtrees[1])
-        elif node.root == 'id':
-            if node.subtrees[0].root in self.bounded_vars:
-                self.constraints[self.type_var(node)] = self.bounded_vars[node.subtrees[0].root]
+    return results
 
-    def __visit_type_var(self, node: Tree, index: int):
-        if node.root == 'num':
-            self.type_vars[id(node)] = f'T{index}'
-        elif node.root == '\\':
-            self.type_vars[id(node)] = f'T{index}'
-            for i, subtree in enumerate(node.subtrees):
-                self.__visit_type_var(subtree, index + i + 1)
-        elif node.root == '@':
-            self.type_vars[id(node)] = f'T{index}'
-            for i, subtree in enumerate(node.subtrees):
-                self.__visit_type_var(subtree, index + i + 1)
-        elif node.root == 'id':
-            self.type_vars[id(node)] = f'T{index}'
-
-    def __call__(self, node: Tree) -> None:
-        self.constraints = {}
-        self.type_vars = {}
-        self.bounded_vars = {}
-        self.__visit_type_var(node, 0)
-        self.__visit_constraints(node)
-
-
-def get_constraints(expr: Tree) -> dict[str: Tree]:
-    visitor = ConstraintsVisitor()
-    visitor(expr)
-    print_tree_with_type_vars(expr, visitor.type_vars)
-    pprint(visitor.constraints)
-
-    return {}
-
+def rebuild(expr: Tree, type_vars: dict[int, str], type_results: dict[str: Tree]) -> Tree:
+    return None
 
 def type_inference(expr: Tree) -> tuple[Tree, Tree]:
     """
@@ -82,17 +32,27 @@ def type_inference(expr: Tree) -> tuple[Tree, Tree]:
      * If encountered a unification error, raise TypeError('type mismatch')
      * If some types cannot be inferred, raise TypeError('insufficient type annotations')
     """
-    constraints = get_constraints(expr)
-    return (None, None)
+    type_vars, constraints = get_constraints(expr)
+    type_results = unify(type_vars.values(), constraints)
+
+    print_tree_with_type_vars(expr, type_vars)
+    pprint(constraints)
+    pprint(type_results)
+
+    return (rebuild(expr, type_vars, type_results), type_results['T0'])
 
 
-def print_tree_with_type_vars(expr, type_vars):
-    expr = Tree.reconstruct(expr)
-    for x in PreorderWalk(expr):
-        if id(x) in type_vars:
-            x.root = f'{x.root} ({type_vars[id(x)]})'
+def print_tree(expr):
     from lib.adt.tree.viz import dot_print
     dot_print(expr)
+
+def print_tree_with_type_vars(expr, type_vars):
+    new_expr = Tree.reconstruct(expr)
+    for old, new in zip(PreorderWalk(expr), PreorderWalk(new_expr)):
+        if id(old) in type_vars:
+            new.root = f'{new.root} ({type_vars[id(old)]})'
+    print_tree(new_expr)
+
 
 if __name__ == '__main__':
     # expr = LambdaParser()(r"""
@@ -100,13 +60,20 @@ if __name__ == '__main__':
     # \f. succ (f True add2)
     # """)
     expr = LambdaParser()(r"""
-    (\x. plus x 2)
+    (\plus (lt : nat -> nat -> bool). lt ((\x. plus x x) 3) ((\x. plus 5 x) 9))
     """)
-    
+    print_tree(expr)
+
+#     out = LambdaParser()(r"""
+#     \(plus : nat -> nat -> nat) (lt : nat -> nat -> bool). lt ((\(x : nat). plus x x) 3) ((\(x : nat). plus 5 x) 9)
+#    (nat → nat → nat) → (nat → nat → bool) → bool
+#     """)
+#     dot_print(out)
+
     if expr:
         print(">> Valid expression.")
         # print(pretty(expr))
         print(type_inference(expr))
-        # dot_print(type_inference(expr)[0])
+        # print_tree(type_inference(expr)[0])
     else:
         print(">> Invalid expression.")
