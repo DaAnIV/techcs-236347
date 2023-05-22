@@ -6,6 +6,7 @@ Implement type checking and type inference for simply-typed lambda calculus.
 """
 
 from lambda_calc.constraints import ConstraintsVisitor
+from lambda_calc.rebuild import RebuilderVisitor
 from lambda_calc.syntax import LambdaParser
 from lib.adt.tree import Tree, PreorderWalk
 from pprint import pprint
@@ -16,12 +17,12 @@ def get_constraints(expr: Tree) -> tuple[dict[int, str], dict[str: Tree]]:
 def unify(type_vars, constraints: dict[str: list[Tree]]) -> dict[str: Tree]:
     results = {}
     for var in type_vars:
-        results[var] = None
+        results[var] = Tree('nat')
 
     return results
 
 def rebuild(expr: Tree, type_vars: dict[int, str], type_results: dict[str: Tree]) -> Tree:
-    return None
+    return RebuilderVisitor()(expr, type_vars, type_results)
 
 def type_inference(expr: Tree) -> tuple[Tree, Tree]:
     """
@@ -74,6 +75,6 @@ if __name__ == '__main__':
         print(">> Valid expression.")
         # print(pretty(expr))
         print(type_inference(expr))
-        # print_tree(type_inference(expr)[0])
+        print_tree(type_inference(expr)[0])
     else:
         print(">> Invalid expression.")
