@@ -8,18 +8,12 @@ Implement type checking and type inference for simply-typed lambda calculus.
 from lambda_calc.constraints import ConstraintsVisitor
 from lambda_calc.rebuild import RebuilderVisitor
 from lambda_calc.syntax import LambdaParser
+from lambda_calc.unifier import unify
 from lib.adt.tree import Tree, PreorderWalk
 from pprint import pprint
 
 def get_constraints(expr: Tree) -> tuple[dict[int, str], dict[str: Tree]]:
     return ConstraintsVisitor()(expr)
-
-def unify(type_vars, constraints: dict[str: list[Tree]]) -> dict[str: Tree]:
-    results = {}
-    for var in type_vars:
-        results[var] = Tree('nat')
-
-    return results
 
 def rebuild(expr: Tree, type_vars: dict[int, str], type_results: dict[str: Tree]) -> Tree:
     return RebuilderVisitor()(expr, type_vars, type_results)
@@ -36,9 +30,9 @@ def type_inference(expr: Tree) -> tuple[Tree, Tree]:
     type_vars, constraints = get_constraints(expr)
     type_results = unify(type_vars.values(), constraints)
 
-    print_tree_with_type_vars(expr, type_vars)
-    pprint(constraints)
-    pprint(type_results)
+    # print_tree_with_type_vars(expr, type_vars)
+    # pprint(constraints)
+    # pprint(type_results)
 
     return (rebuild(expr, type_vars, type_results), type_results['T0'])
 
@@ -57,13 +51,16 @@ def print_tree_with_type_vars(expr, type_vars):
 
 if __name__ == '__main__':
     # expr = LambdaParser()(r"""
+    # \x. (\plus: nat -> nat -> nat. plus x 2)
+    # """)
+    # expr = LambdaParser()(r"""
     # let add2 = \x. plus x 2 in
     # \f. succ (f True add2)
     # """)
     expr = LambdaParser()(r"""
     (\plus (lt : nat -> nat -> bool). lt ((\x. plus x x) 3) ((\x. plus 5 x) 9))
     """)
-    print_tree(expr)
+    # print_tree(expr)
 
     out = LambdaParser()(r"""
     \(plus : nat -> nat -> nat) (lt : nat -> nat -> bool). lt ((\(x : nat). plus x x) 3) ((\(x : nat). plus 5 x) 9)
@@ -80,3 +77,4 @@ if __name__ == '__main__':
         print_tree(results[1])
     else:
         print(">> Invalid expression.")
+    pass
