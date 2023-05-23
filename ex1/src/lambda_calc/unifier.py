@@ -1,5 +1,5 @@
 
-from adt.tree import Tree
+from lib.adt.tree import Tree
 from typing import  Tuple
 
 def is_concrete_type(t: Tree) -> bool:
