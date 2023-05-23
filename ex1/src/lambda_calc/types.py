@@ -53,21 +53,32 @@ if __name__ == '__main__':
     # expr = LambdaParser()(r"""
     # \x. (\plus: nat -> nat -> nat. plus x 2)
     # """)
-    # expr = LambdaParser()(r"""
-    # let add2 = \x. plus x 2 in
-    # \f. succ (f True add2)
+    # out_tree = LambdaParser()(r"""
+    # \(x: nat) (plus: nat -> nat -> nat). plus x 2
     # """)
-    expr = LambdaParser()(r"""
-    (\plus (lt : nat -> nat -> bool). lt ((\x. plus x x) 3) ((\x. plus 5 x) 9))
-    """)
-    # print_tree(expr)
+    # out_result = LambdaParser()(r"""
+    # \result : (nat -> (nat ->nat -> nat) -> nat). result
+    # """).subtrees[0].subtrees[1]
 
+    expr = LambdaParser()(r"let succ:(nat -> nat) = \x.x in \x. succ x")
     out_tree = LambdaParser()(r"""
-    \(plus : nat -> nat -> nat) (lt : nat -> nat -> bool). lt ((\(x : nat). plus x x) 3) ((\(x : nat). plus 5 x) 9)
+    let succ:(nat -> nat) = \x: nat.x in \x: nat. succ x
     """)
     out_result = LambdaParser()(r"""
-    \(result : ((nat -> nat -> nat) -> (nat -> nat -> bool) -> bool)). result
+    \result : (nat -> nat). result
     """).subtrees[0].subtrees[1]
+
+    # expr = LambdaParser()(r"""
+    # (\plus (lt : nat -> nat -> bool). lt ((\x. plus x x) 3) ((\x. plus 5 x) 9))
+    # """)
+    # print_tree(expr)
+
+    # out_tree = LambdaParser()(r"""
+    # \(plus : nat -> nat -> nat) (lt : nat -> nat -> bool). lt ((\(x : nat). plus x x) 3) ((\(x : nat). plus 5 x) 9)
+    # """)
+    # out_result = LambdaParser()(r"""
+    # \(result : ((nat -> nat -> nat) -> (nat -> nat -> bool) -> bool)). result
+    # """).subtrees[0].subtrees[1]
 
     if expr:
         print(">> Valid expression.")

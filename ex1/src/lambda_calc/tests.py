@@ -40,6 +40,20 @@ class TestTypes(unittest.TestCase):
 
         self.check_valid(expr, out_tree, out_result)
 
+    def test_valid_four(self):
+        expr = r"""\x (plus: nat -> nat -> nat). plus x 2"""
+        out_tree = r"""\(x: nat) (plus: nat -> nat -> nat). plus x 2"""
+        out_result = r"""nat -> (nat -> nat -> nat) -> nat"""
+
+        self.check_valid(expr, out_tree, out_result)
+
+    def test_valid_five(self):
+        expr = r"""let succ:(nat -> nat) = \x.x in \x. succ x"""
+        out_tree = r"""let succ:(nat -> nat) = \x: nat.x in \x: nat. succ x"""
+        out_result = r"""nat -> nat"""
+
+        self.check_valid(expr, out_tree, out_result)
+
     def test_type_error_one(self):
         expr = LambdaParser()(r"""\x : int. plus x 2""")
 
@@ -55,7 +69,7 @@ class TestTypes(unittest.TestCase):
 
         with self.assertRaises(TypeError) as cm:
             type_inference(expr)
-            
+
 
 if __name__ == '__main__':
     unittest.main()
