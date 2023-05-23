@@ -7,7 +7,7 @@ Implement type checking and type inference for simply-typed lambda calculus.
 
 from lambda_calc.constraints import ConstraintsVisitor
 from lambda_calc.rebuild import RebuilderVisitor
-from lambda_calc.syntax import LambdaParser
+from lambda_calc.syntax import LambdaParser, pretty
 from lambda_calc.unifier import unify
 from lib.adt.tree import Tree, PreorderWalk
 from pprint import pprint
@@ -62,17 +62,21 @@ if __name__ == '__main__':
     """)
     # print_tree(expr)
 
-    out = LambdaParser()(r"""
+    out_tree = LambdaParser()(r"""
     \(plus : nat -> nat -> nat) (lt : nat -> nat -> bool). lt ((\(x : nat). plus x x) 3) ((\(x : nat). plus 5 x) 9)
-   (nat → nat → nat) → (nat → nat → bool) → bool
     """)
-    print_tree(out)
+    out_result = LambdaParser()(r"""
+    \(result : ((nat -> nat -> nat) -> (nat -> nat -> bool) -> bool)). result
+    """).subtrees[0].subtrees[1]
 
     if expr:
         print(">> Valid expression.")
         # print(pretty(expr))
         results = type_inference(expr)
-        print(results)
+        print(results[0] == out_tree)
+        print(results[1] == out_result)
+        print(pretty(results[0]))
+        print(pretty(results[1]))
         print_tree(results[0])
         print_tree(results[1])
     else:
